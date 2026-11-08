@@ -106,8 +106,15 @@ no se vuelve a calcular al aplicar filtros. Grado y prestigio miden cosas distin
 Sitio estático con Vite, Sigma.js 3.0.2, Graphology y JavaScript. WebGL dibuja nodos
 y aristas; Canvas 2D dibuja las etiquetas para mayor compatibilidad. Los filtros se ejecutan
 en un Web Worker para no bloquear la interacción. La publicación mediante GitHub
-Actions vuelve a generar y verificar los datos y recalcula las posiciones. El
+Actions verifica todos los datos procesados y recalcula las posiciones. El
 workflow utiliza el lockfile y versiones exactas de las dependencias principales.
+
+El Excel de trabajo permanece local y no se publica. `scripts/validate_web_data.py`
+usa únicamente los CSV, el JSON y la configuración procesada: reconstruye todos
+los pares compartidos por proyecto y los prestigios por rol y comprueba personas,
+conexiones, pesos, grados, participaciones y hashes. Así la publicación no requiere
+acceso al consolidado completo. La regeneración desde el Excel se ejecuta localmente
+con la notebook y `scripts/build_web_data.py` antes de subir nuevos datos procesados.
 
 `web/public/data/graph.json` usa arrays compactos para reducir la transferencia:
 
