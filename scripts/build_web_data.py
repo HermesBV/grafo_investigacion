@@ -3,7 +3,7 @@
 Ejecutar después de la notebook. No modifica el Excel ni los CSV originales.
 """
 from __future__ import annotations
-import argparse, csv, hashlib, itertools, json, re, unicodedata
+import argparse, csv, hashlib, itertools, json, math, re, unicodedata
 from collections import defaultdict, Counter
 from pathlib import Path
 import openpyxl
@@ -59,8 +59,11 @@ def main():
     args = parser.parse_args()
     source = ROOT/'output/grafos/ubacyt'
     config = json.loads((source/'ultima_ejecucion.json').read_text(encoding='utf-8'))
-    if config['tipos_incluidos'] != ['UBACYT']:
-        raise ValueError('Actualizar el visor para los nuevos tipos de proyecto antes de publicar.')
+    included_types=set(config['tipos_incluidos'])
+    for kind in included_types:
+        weights=config['pesos_tipo'].get(kind,{})
+        if set(weights)!={'nodos','conexiones'} or any(not isinstance(v,(int,float)) or isinstance(v,bool) or not math.isfinite(v) or v<=0 for v in weights.values()):
+            raise ValueError(f'Falta definir la ponderación de nodos y conexiones para {kind}.')
     aliases = json.loads(args.aliases.read_text(encoding='utf-8')) if args.aliases else {}
     aliases = {spaces(k).upper(): spaces(v).upper() for k,v in aliases.items()}
     node_csv = load_csv(source/'nodos_ubacyt.csv')
@@ -74,21 +77,23 @@ def main():
     wb = openpyxl.load_workbook(args.excel, read_only=True, data_only=True)
     rows = wb['Datos'].iter_rows(values_only=True)
     columns = next(rows)
+    if 'Tipo de proyecto' not in columns:
+        raise ValueError('Falta Tipo de proyecto en el Excel. Migrar la base histórica antes de generar el visor.')
     seen = set()
     source_rows = 0
     for values in rows:
         row = dict(zip(columns, values))
         code = spaces(row['Código proyecto']).upper()
-        call = spaces(row['Convocatoria']).upper()
-        if code.startswith(('PDE', 'PIUBA')):
+        kind = spaces(row['Tipo de proyecto']).upper()
+        if not kind:
+            raise ValueError(f'Falta Tipo de proyecto: {code}')
+        if kind not in included_types:
             continue
-        if not (call.startswith('UBACYT') or re.fullmatch(r'\d{14,16}(?:BA)?', code)):
-            raise ValueError(f'Tipo de proyecto desconocido: {code}')
         year = int(row['Año del listado'])
         if year not in config['anios']:
             continue
         source_rows += 1
-        exact = tuple(values[:7])
+        exact = tuple(row[c] for c in ['Año del listado','Código proyecto','Convocatoria','Integrante','Rol integrante','Título del proyecto','Unidad académica','Tipo de proyecto'])
         assert exact not in seen, 'Ejecutar primero la deduplicación de la notebook'
         seen.add(exact)
         name = spaces(row['Integrante']).upper()
@@ -101,7 +106,7 @@ def main():
         canonical_role = role(row['Rol integrante'])
         if canonical_role not in role_ids:
             raise ValueError(f'Rol sin puntaje: {canonical_role}')
-        p = projects.setdefault(code, {'titles':set(), 'units':set(), 'raw_units':set(), 'years':set(), 'members':{}})
+        p = projects.setdefault((kind,code), {'titles':set(), 'units':set(), 'raw_units':set(), 'years':set(), 'members':{}})
         p['titles'].add(spaces(row['Título del proyecto']))
         p['units'].add(canonical_unit(row['Unidad académica']))
         p['raw_units'].add(spaces(row['Unidad académica']))
@@ -117,9 +122,9 @@ def main():
     project_counts = Counter()
     edges = Counter()
     output_projects = []
-    node_multiplier = config['pesos_tipo']['UBACYT']['nodos']
-    edge_multiplier = config['pesos_tipo']['UBACYT']['conexiones']
-    for code,p in sorted(projects.items()):
+    for (kind,code),p in sorted(projects.items()):
+        node_multiplier=config['pesos_tipo'][kind]['nodos']
+        edge_multiplier=config['pesos_tipo'][kind]['conexiones']
         members = sorted(p['members'])
         for index, member in p['members'].items():
             prestige[index] += max(config['puntos_rol'][roles[r]] for r in member['roles']) * node_multiplier
@@ -127,7 +132,7 @@ def main():
         for a,b in itertools.combinations(members,2):
             edges[a,b] += edge_multiplier
         output_projects.append([code, sorted(p['titles']), sorted(unit_ids[u] for u in p['units']),
-                                [[index, sorted(p['members'][index]['roles']), sorted(p['members'][index]['years'])] for index in members], sorted(p['years']), sorted(p['raw_units'])])
+                                [[index, sorted(p['members'][index]['roles']), sorted(p['members'][index]['years'])] for index in members], sorted(p['years']), sorted(p['raw_units']),kind])
     for i,n in enumerate(nodes):
         assert prestige[i] == float(n['prestigio']), f'Prestigio distinto: {n["Label"]}'
     expected = Counter()
@@ -145,17 +150,18 @@ def main():
     output_nodes = [[n['Id'], n['Label'], float(n['prestigio']), degree[i], strength[i], project_counts[i]] for i,n in enumerate(nodes)]
     sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
     catalog = json.loads((ROOT/'fuentes-ubacyt.json').read_text(encoding='utf-8'))
-    sources = [{'year':e['year'],'url':e['url']} for e in catalog['entries'] if e.get('level')=='integrantes' and e['year'] in years]
-    assert years <= {s['year'] for s in sources}, 'Falta registrar una fuente anual en fuentes-ubacyt.json'
+    sources = [{'year':e['year'],'url':e['url'],'type':e.get('project_type','UBACYT').upper()} for e in catalog['entries'] if e.get('level')=='integrantes' and e['year'] in years and e.get('project_type','UBACYT').upper() in included_types]
+    observed={(kind,year) for (kind,_),p in projects.items() for year in p['years']}
+    assert observed <= {(s['type'],s['year']) for s in sources}, 'Falta registrar una fuente anual por tipo en fuentes-ubacyt.json'
     output = {
-        'schemaVersion':1,
+        'schemaVersion':2,
         'meta': {'years':sorted(years), 'nodes':len(nodes), 'edges':len(edges), 'projects':len(projects),
                  'memberships':sum(len(p['members']) for p in projects.values()), 'sourceRows':source_rows,
                  'totalPrestige':sum(prestige.values()), 'totalEdgeWeight':sum(edges.values()),
-                 'edgeMultiplier':edge_multiplier, 'roleScores':config['puntos_rol'],
+                 'projectTypeWeights':{kind:config['pesos_tipo'][kind] for kind in sorted(included_types)}, 'roleScores':config['puntos_rol'],
                  'sourceHashes':{'excel':sha(args.excel), 'nodes':sha(source/'nodos_ubacyt.csv'), 'edges':sha(source/'conexiones_ubacyt.csv')},
                  'sources':sorted(sources,key=lambda s:s['year'])},
-        'roles':roles, 'units':units, 'nodes':output_nodes, 'projects':output_projects,
+        'roles':roles, 'units':units, 'types':sorted({kind for kind,_ in projects}),'nodes':output_nodes, 'projects':output_projects,
         'edges':[[a,b,w] for (a,b),w in sorted(edges.items())]
     }
     path = ROOT/'web/public/data/graph.json'

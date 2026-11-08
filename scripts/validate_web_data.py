@@ -22,12 +22,9 @@ def main():
     graph = json.loads((ROOT/'web/public/data/graph.json').read_text(encoding='utf-8'))
     base = ROOT/'output/grafos/ubacyt'
     config = json.loads((base/'ultima_ejecucion.json').read_text(encoding='utf-8'))
-    assert graph['schemaVersion'] == 1
-    assert config['tipos_incluidos'] == ['UBACYT']
+    assert graph['schemaVersion'] == 2
     assert graph['meta']['roleScores'] == config['puntos_rol']
-    node_multiplier = config['pesos_tipo']['UBACYT']['nodos']
-    edge_multiplier = config['pesos_tipo']['UBACYT']['conexiones']
-    assert graph['meta']['edgeMultiplier'] == edge_multiplier
+    assert graph['meta']['projectTypeWeights'] == {kind:config['pesos_tipo'][kind] for kind in config['tipos_incluidos']}
     nodes = graph['nodes']
     ids = {n[0]: i for i,n in enumerate(nodes)}
     assert len(ids) == len(nodes), 'IDs de personas repetidos'
@@ -44,8 +41,13 @@ def main():
     memberships = 0
     for p in graph['projects']:
         code, titles, units, members, years = p[:5]
-        assert code and code not in codes, 'Código de proyecto repetido o vacío'
-        codes.add(code)
+        assert len(p)==7
+        kind=p[6]
+        assert kind in graph['types'] and kind in config['tipos_incluidos']
+        assert code and (kind,code) not in codes, 'Clave de proyecto repetida o vacía'
+        codes.add((kind,code))
+        node_multiplier=config['pesos_tipo'][kind]['nodos']
+        edge_multiplier=config['pesos_tipo'][kind]['conexiones']
         assert titles and years
         assert all(0 <= u < len(graph['units']) for u in units)
         indexes = [m[0] for m in members]
@@ -78,6 +80,7 @@ def main():
     for i,n in enumerate(nodes):
         assert n[2:6] == [prestige[i],degree[i],strength[i],project_counts[i]], f'Atributos distintos para {n[0]}'
     meta = graph['meta']
+    assert set(graph['types'])=={kind for kind,_ in codes}
     assert meta['nodes'] == len(nodes) and meta['edges'] == len(graph_edges)
     assert meta['projects'] == len(codes) and meta['memberships'] == memberships
     assert meta['totalPrestige'] == sum(prestige.values())
