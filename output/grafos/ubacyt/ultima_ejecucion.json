@@ -1,9 +1,9 @@
 {
-  "fecha_utc": "20261107T224146051348Z",
+  "fecha_utc": "20261108T220030465505Z",
   "archivo_base": "C:\\Users\\tomas.bustos\\Documents\\personal\\uba\\grafo_investigacion\\output\\xlsx\\UBACYT-consolidado-2021-2022-2023.xlsx",
   "hoja": "Datos",
-  "hash_base_entrada": "a36dff40f52e2ab855eb2f5d5b8d9896f3524e7a40ed1277d3963a03aafc7529",
-  "hash_base_salida": "a36dff40f52e2ab855eb2f5d5b8d9896f3524e7a40ed1277d3963a03aafc7529",
+  "hash_base_entrada": "a5b0ed79f5ab80d9bffaffbca33d7fe9d0621258de5f66011f08d26a3e0ada8c",
+  "hash_base_salida": "a5b0ed79f5ab80d9bffaffbca33d7fe9d0621258de5f66011f08d26a3e0ada8c",
   "respaldo": null,
   "filas_entrada": 43168,
   "duplicados_eliminados": 0,
@@ -35,6 +35,33 @@
       "nodos": 1,
       "conexiones": 1
     }
+  },
+  "columnas_fuente": [
+    "Año del listado",
+    "Código proyecto",
+    "Convocatoria",
+    "Integrante",
+    "Rol integrante",
+    "Título del proyecto",
+    "Unidad académica",
+    "Página PDF",
+    "Fila en página",
+    "Tipo de proyecto"
+  ],
+  "clave_duplicados": [
+    "Año del listado",
+    "Código proyecto",
+    "Convocatoria",
+    "Integrante",
+    "Rol integrante",
+    "Título del proyecto",
+    "Unidad académica",
+    "Tipo de proyecto"
+  ],
+  "tipos_presentes": {
+    "UBACYT": 41164,
+    "PDE": 1818,
+    "PIUBAS": 186
   },
   "criterio_rol_persona_proyecto": "máximo puntaje observado",
   "identidad_persona": "NFC + mayúsculas + espacios normalizados, conservando tildes y puntuación; alias explícitos",
