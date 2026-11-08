@@ -20,8 +20,10 @@
     <aside class="sidebar" id="sidebar" aria-label="Filtros y personas">
       <div class="sidebar-heading"><div><span class="eyebrow">ENCONTRÁ CONEXIONES</span><h1>Explorar la red</h1></div><button id="close-filters" class="icon-button mobile-only" aria-label="Cerrar filtros">×</button></div>
       <form id="filters" autocomplete="off">
-        <label for="unit">Unidad académica</label><select id="unit"><option value="">Todas las unidades</option></select>
-        <label for="role">Rol en el proyecto</label><select id="role"><option value="">Todos los roles</option></select>
+        <label for="project-type">Tipo de proyecto</label><div id="project-type-filter" class="multi-filter"></div>
+        <label for="unit">Unidad académica</label><div id="unit-filter" class="multi-filter"></div>
+        <label for="role">Rol en el proyecto</label><div id="role-filter" class="multi-filter"></div>
+        <p class="multi-help">Podés seleccionar varias opciones. Sin selección se incluyen todas.</p>
         <label for="name">Integrante</label><input id="name" type="search" placeholder="Nombre o apellido" />
         <label class="checkbox"><input id="neighbors" type="checkbox" checked /> Ver sus colaboradores</label>
         <label for="code">Código del proyecto</label><input id="code" type="search" placeholder="Código completo o parcial" />
