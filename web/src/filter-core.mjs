@@ -20,14 +20,24 @@ export function prepareData(data) {
   return {
     limits:getThresholdLimits(data),
     names:data.nodes.map(n=>normalizeSearch(n[1])),
-    projects:data.projects.map(p=>({code:normalizeSearch(p[0]), title:normalizeSearch(p[1].join(' '))})),
+    projects:data.projects.map(p=>{
+      const type=p[6]??'UBACYT';
+      const weight=data.meta.projectTypeWeights?.[type]?.conexiones??(data.schemaVersion!==2?data.meta.edgeMultiplier:undefined);
+      if(!Number.isFinite(weight)||weight<=0)throw new Error(`Falta el peso de conexiones para ${type}.`);
+      return {code:normalizeSearch(p[0]),title:normalizeSearch(p[1].join(' ')),type,weight};
+    }),
   };
+}
+
+function selection(values,numeric=false) {
+  const selected=(Array.isArray(values)?values:[values]).filter(v=>v!==''&&v!=null).map(v=>numeric?Number(v):String(v));
+  return selected.length?new Set(selected):null;
 }
 
 export function filterGraph(data, filters={}, index=prepareData(data)) {
   const name=normalizeSearch(filters.name), code=normalizeSearch(filters.code), title=normalizeSearch(filters.title);
-  const role=filters.role === '' || filters.role == null ? null : Number(filters.role);
-  const unit=filters.unit === '' || filters.unit == null ? null : Number(filters.unit);
+  const roles=selection(filters.roles??filters.role,true), units=selection(filters.units??filters.unit,true);
+  const types=selection(filters.types);
   const neighbors=filters.neighbors !== false;
   const minConnections=minimum(filters.minConnections,index.limits.maxConnections,'Mínimo de conexiones');
   const minProjects=minimum(filters.minProjects,index.limits.maxProjects,'Mínimo de proyectos');
@@ -36,10 +46,11 @@ export function filterGraph(data, filters={}, index=prepareData(data)) {
   const visible=new Set(), matches=new Set(), projects=[], pairs=new Map();
   for (let pi=0; pi<data.projects.length; pi++) {
     const p=data.projects[pi], search=index.projects[pi];
-    if (unit!==null && !p[2].includes(unit)) continue;
+    if(types&&!types.has(search.type))continue;
+    if(units&&!p[2].some(u=>units.has(u)))continue;
     if (code && !search.code.includes(code)) continue;
     if (title && !search.title.includes(title)) continue;
-    let members=p[3].filter(m=>eligible[m[0]]&&(role===null || m[1].includes(role))).map(m=>m[0]);
+    let members=p[3].filter(m=>eligible[m[0]]&&(!roles||m[1].some(r=>roles.has(r)))).map(m=>m[0]);
     if (name) {
       const selected=members.filter(n=>index.names[n].includes(name));
       if (!selected.length) continue;
@@ -52,7 +63,7 @@ export function filterGraph(data, filters={}, index=prepareData(data)) {
     for (let a=0; a<members.length; a++) for (let b=a+1; b<members.length; b++) {
       const x=Math.min(members[a],members[b]), y=Math.max(members[a],members[b]);
       const key=x*data.nodes.length+y;
-      pairs.set(key,(pairs.get(key)||0)+data.meta.edgeMultiplier);
+      pairs.set(key,(pairs.get(key)||0)+search.weight);
     }
   }
   const edges=[...pairs].map(([key,w])=>[Math.floor(key/data.nodes.length),key%data.nodes.length,w]);
