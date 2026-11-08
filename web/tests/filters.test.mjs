@@ -19,6 +19,27 @@ test('nombre con colaboradores incluye únicamente sus grupos',()=>assert.deepEq
 test('nombre estricto mantiene un nodo aislado',()=>assert.deepEqual(filterGraph(fixture,{name:'ana perez',neighbors:false}).nodes,[0]));
 test('código y título se combinan con AND',()=>assert.equal(filterGraph(fixture,{code:'P1',title:'fisica'}).projects.length,0));
 test('sin rol se conserva y puede filtrarse',()=>assert.deepEqual(filterGraph(fixture,{role:'2'}).nodes,[2]));
+test('múltiples unidades se combinan con OR',()=>assert.deepEqual(filterGraph(fixture,{units:['0','1']}).nodes,[0,1,2,3]));
+test('múltiples roles se combinan con OR dentro del mismo proyecto',()=>assert.deepEqual(filterGraph(fixture,{roles:['0','1']}).nodes,[0,1,3]));
+test('unidad y roles múltiples se combinan con AND entre filtros',()=>assert.deepEqual(filterGraph(fixture,{units:['1'],roles:['0','2']}).nodes,[3]));
+test('listas vacías incluyen todas las opciones',()=>assert.deepEqual(filterGraph(fixture,{units:[],roles:[],types:[]}),filterGraph(fixture)));
+const mixed={schemaVersion:2,meta:{projectTypeWeights:{UBACYT:{nodos:1,conexiones:1},PICT:{nodos:2,conexiones:3}}},
+  nodes:fixture.nodes,roles:fixture.roles,units:fixture.units,types:['UBACYT','PICT'],projects:[
+    ['MISMO-CODIGO',['Proyecto UBA'],[0],[[0,[0],[2021]],[1,[1],[2021]]],[2021],[],'UBACYT'],
+    ['MISMO-CODIGO',['Proyecto PICT'],[1],[[0,[1],[2022]],[1,[0],[2022]]],[2022],[],'PICT'],
+  ]};
+test('códigos iguales de tipos distintos suman proyectos y pesos separados',()=>{
+  const r=filterGraph(mixed,{types:['UBACYT','PICT']});
+  assert.deepEqual(r.projects,[0,1]);assert.deepEqual(edges(r),['0:1:4']);
+  assert.deepEqual(edges(filterGraph(mixed,{types:['PICT']})),['0:1:3']);
+});
+test('tipo, unidad y rol se evalúan en el mismo proyecto',()=>{
+  assert.deepEqual(filterGraph(mixed,{types:['UBACYT'],units:['1']}).nodes,[]);
+  assert.deepEqual(filterGraph(mixed,{types:['PICT'],roles:['0']}).nodes,[1]);
+});
+test('tipo nuevo sin ponderación no recibe un peso automático',()=>{
+  assert.throws(()=>filterGraph({...mixed,meta:{projectTypeWeights:{}}}),/Falta el peso/);
+});
 test('cero resultados es válido',()=>assert.deepEqual(filterGraph(fixture,{name:'inexistente'}),{nodes:[],edges:[],projects:[],matches:[]}));
 test('rangos se derivan de la base completa',()=>assert.deepEqual(getThresholdLimits(fixture),{maxConnections:3,maxProjects:2}));
 test('ceros y campos vacíos conservan toda la red',()=>{
@@ -66,10 +87,12 @@ test('grafo real: IDs, miembros, roles, unidades y posiciones son válidos',()=>
   assert.equal(new Set(real.nodes.map(n=>n[0])).size,real.nodes.length);
   for(const n of real.nodes){assert.equal(n.length,10);assert.ok(n.slice(2).every(Number.isFinite));}
   for(const p of real.projects){
+    assert.equal(p.length,7);assert.ok(real.types.includes(p[6]));
     assert.equal(new Set(p[3].map(m=>m[0])).size,p[3].length);
     for(const u of p[2])assert.ok(u>=0&&u<real.units.length);
     for(const m of p[3]){assert.ok(real.nodes[m[0]]);for(const role of m[1])assert.ok(real.roles[role]);}
   }
+  assert.equal(new Set(real.projects.map(p=>JSON.stringify([p[6],p[0]]))).size,real.projects.length);
 });
 test('grafo real: los mínimos conservan exactamente los nodos elegibles y sus aristas',()=>{
   const allowed=new Set(real.nodes.flatMap((n,i)=>n[3]>=30&&n[5]>=2?[i]:[]));
