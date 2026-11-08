@@ -1,0 +1,130 @@
+{
+  "consulted_on": "2026-11-07",
+  "source_catalog": "https://cyt.rec.uba.ar/wp-json/wp/v2/media?search=vigentes&per_page=100",
+  "entries": [
+    {
+      "year": 2021,
+      "file": "output/pdf/UBACYT-PDE-proyectos-vigentes-2021.pdf",
+      "url": "https://cyt.rec.uba.ar/wp-content/uploads/PROYECTOS-UBACYT-Y-PDE-VIGENTES-2021.pdf",
+      "detail": "Integrantes y roles por proyecto; incluye UBACyT y PDE.",
+      "level": "integrantes",
+      "bytes": 12840436,
+      "sha256": "a4a4aa491594edc5522eb18614c0b53ed625ce63bf0f57ea1cde1a58b04ed157",
+      "pages": 1199
+    },
+    {
+      "year": 2022,
+      "file": "output/pdf/UBACYT-PDE-PIUBAS-proyectos-vigentes-2022.pdf",
+      "url": "https://cyt.rec.uba.ar/wp-content/uploads/PROYECTOS-CYT-VIGENTES-2022-1.pdf",
+      "detail": "Integrantes y roles por proyecto; portada UBACyT, PDE, PIUBAS.",
+      "level": "integrantes",
+      "bytes": 3370510,
+      "sha256": "bad2a7359479bd61deabdd0159bf6260676ebb193a0668e21090fe3c5e291b0d",
+      "pages": 957
+    },
+    {
+      "year": 2023,
+      "file": "output/pdf/UBACYT-proyectos-vigentes-2023.pdf",
+      "url": "https://exactas.uba.ar/wp-content/uploads/2023/02/PROYECTOS-UBACYT-VIGENTES-2023.pdf",
+      "detail": "Archivo recuperado anteriormente. Integrantes y roles por proyecto.",
+      "level": "integrantes",
+      "bytes": 5680937,
+      "sha256": "fc15ff6cfeb7e61dd6a0eaa453455f64220e20e2a62ec5fa5085e3cf99c1c919",
+      "pages": 1946
+    },
+    {
+      "year": 2021,
+      "date": "2021-06",
+      "file": "output/xlsx/UBACYT-proyectos-vigentes-2021-06.xlsx",
+      "url": "https://cyt.rec.uba.ar/wp-content/uploads/Proyectos-UBACYT-vigentes-a-junio-de-2021-1.xlsx",
+      "detail": "Directores, codirectores y resúmenes; sin nómina de integrantes. Incluye PDE.",
+      "level": "proyectos",
+      "bytes": 912078,
+      "sha256": "a0c812e8a819e5583b1f4ee192bc013c807f1eb590500e205124f4351f732f41",
+      "sheet": "Proyectos UBACYT vigentes ",
+      "headers": [
+        "Unidad Académica",
+        "CTA Evaluadora",
+        "Código Proyecto",
+        "Convocatoria",
+        "Apellido Director/a",
+        "Nombres Director/a",
+        "Título",
+        "Resumen",
+        "Area",
+        "Especialidad",
+        "Acreditado con",
+        "Codirector/es"
+      ],
+      "rows_with_code": 1533,
+      "distinct_project_codes": 1533
+    },
+    {
+      "year": 2024,
+      "date": "2024-02-26",
+      "file": "output/xlsx/UBACYT-proyectos-vigentes-2024-02-26.xlsx",
+      "url": "https://cyt.rec.uba.ar/wp-content/uploads/Proyectos-vigentes-al-26_2_2024.xlsx",
+      "detail": "Directores, codirectores y resúmenes; sin nómina de integrantes. Incluye PDE.",
+      "level": "proyectos",
+      "bytes": 376108,
+      "sha256": "db5dad3780bbb59f504a239376935620126069171a25e07e5da2f2ca4228ef7f",
+      "sheet": "Proyectos_vigentes_al_26_2_2024",
+      "headers": [
+        "Unidad Académica",
+        "CTA Evaluadora",
+        "Código Proyecto",
+        "Convocatoria",
+        "Apellido Director/a",
+        "Nombres Director/a",
+        "Título del proyecto",
+        "Resumen",
+        "Area",
+        "Especialidad",
+        "Acreditado con",
+        "Codirector/es"
+      ],
+      "rows_with_code": 1398,
+      "distinct_project_codes": 1389
+    },
+    {
+      "year": 2026,
+      "date": "2026-08-31",
+      "file": "output/xlsx/UBACYT-proyectos-vigentes-2026-08-31.xlsx",
+      "url": "https://cyt.rec.uba.ar/wp-content/uploads/Proyectos-vigentes-al-31-8-26.xlsx",
+      "detail": "Directores, codirectores y resúmenes; sin nómina de integrantes. Incluye PDE.",
+      "level": "proyectos",
+      "bytes": 1198583,
+      "sha256": "be47fdac9113f9118ac7781a5ea802a8154cdfba06851332d98477888dc0e4cb",
+      "sheet": "Proyectos vigentes al 31-8-26",
+      "headers": [
+        "Unidad Académica",
+        "CTA Evaluadora",
+        "Código Proyecto",
+        "Convocatoria",
+        "Apellido Director/a",
+        "Nombres Director/a",
+        "Título",
+        "Resumen",
+        "Area",
+        "Especialidad",
+        "Acreditado con",
+        "CICUAL",
+        "Codirector/es"
+      ],
+      "rows_with_code": 1357,
+      "distinct_project_codes": 1357
+    },
+    {
+      "year": 2014,
+      "period": "2014-2017",
+      "file": "output/pdf/complementarios/UBACYT-PDTS-programacion-2014-2017-resumenes.pdf",
+      "url": "http://www.uba.ar/archivos_secyt/image/Vigentes%202014.pdf",
+      "retrieved_url": "https://web.archive.org/web/20170718175849id_/http://www.uba.ar/archivos_secyt/image/Vigentes%202014.pdf",
+      "detail": "Documento complementario limitado a PDTS, con directores y resúmenes. El nombre original Vigentes 2014.pdf no describe su alcance. No es un listado general de equipos UBACyT de 2014.",
+      "level": "complementario",
+      "bytes": 757947,
+      "sha256": "08463e75f9fe210164f49b2ec3ac62cacc5144d95d727cbdc836c79670aea358",
+      "pages": 53
+    }
+  ]
+}

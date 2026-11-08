@@ -1,0 +1,30 @@
+# Archivos de trabajo, respaldos y dependencias locales
+tmp/
+node_modules/
+web/dist/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
+
+# Solo se versionan las entradas que usa la notebook y el visor.
+output/*
+!output/xlsx/
+output/xlsx/*
+!output/xlsx/UBACYT-consolidado-2021-2022-2023.xlsx
+!output/grafos/
+output/grafos/*
+!output/grafos/ubacyt/
+output/grafos/ubacyt/*
+!output/grafos/ubacyt/nodos_ubacyt.csv
+!output/grafos/ubacyt/conexiones_ubacyt.csv
+!output/grafos/ubacyt/ultima_ejecucion.json
+
+# Nota personal: no forma parte del sitio.
+links_interes.txt
