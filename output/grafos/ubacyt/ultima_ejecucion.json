@@ -1,0 +1,58 @@
+{
+  "fecha_utc": "20261107T224146051348Z",
+  "archivo_base": "C:\\Users\\tomas.bustos\\Documents\\personal\\uba\\grafo_investigacion\\output\\xlsx\\UBACYT-consolidado-2021-2022-2023.xlsx",
+  "hoja": "Datos",
+  "hash_base_entrada": "a36dff40f52e2ab855eb2f5d5b8d9896f3524e7a40ed1277d3963a03aafc7529",
+  "hash_base_salida": "a36dff40f52e2ab855eb2f5d5b8d9896f3524e7a40ed1277d3963a03aafc7529",
+  "respaldo": null,
+  "filas_entrada": 43168,
+  "duplicados_eliminados": 0,
+  "filas_base_limpia": 43168,
+  "filas_grafo": 41164,
+  "filas_otros_programas": 2004,
+  "anios": [
+    2021,
+    2022,
+    2023
+  ],
+  "tipos_incluidos": [
+    "UBACYT"
+  ],
+  "puntos_rol": {
+    "ESTUDIANTE DE GRADO": 1,
+    "ESTUDIANTE": 1,
+    "INVESTIGADOR EN FORMACION": 2,
+    "INVESTIGADOR TESISTA": 2,
+    "INVESTIGADOR DE APOYO": 2,
+    "INVESTIGADOR ASESOR": 3,
+    "INVESTIGADOR FORMADO": 3,
+    "CODIRECTOR": 5,
+    "DIRECTOR": 6,
+    "SIN ROL": 1
+  },
+  "pesos_tipo": {
+    "UBACYT": {
+      "nodos": 1,
+      "conexiones": 1
+    }
+  },
+  "criterio_rol_persona_proyecto": "máximo puntaje observado",
+  "identidad_persona": "NFC + mayúsculas + espacios normalizados, conservando tildes y puntuación; alias explícitos",
+  "validacion": {
+    "nodos": 16772,
+    "conexiones": 118489,
+    "participaciones": 24418,
+    "proyectos": 2463,
+    "conexiones_cotejadas": 118489,
+    "nodos_aislados": 0
+  },
+  "suma_prestigio": 69707.0,
+  "suma_pesos_conexiones": 136589.0,
+  "sha256_nodos": "91286e313dca08a97029f82ccc5d56f7b94bae8376e1cacd0062cfec695cb40b",
+  "sha256_conexiones": "2550afac4d073274761b0002f72607831ad2e2ebfdac1476d68a204e824a008c",
+  "versiones": {
+    "python": "3.12.14",
+    "pandas": "3.0.1",
+    "openpyxl": "3.1.5"
+  }
+}
