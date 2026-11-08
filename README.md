@@ -43,10 +43,14 @@ pnpm dev
 
 Abrir la URL que imprime Vite, que termina en `/grafo_investigacion/`.
 El JSON con los datos y las posiciones ya está incluido para explorar localmente.
+La publicación utiliza los CSV y ese JSON. El Excel consolidado se mantiene como
+entrada local y no forma parte del repositorio público.
 
 ## Actualizar las bases
 
-1. Incorporar los años nuevos al Excel, manteniendo las nueve columnas de la hoja `Datos`.
+1. Ubicar el Excel de trabajo local en
+   `output/xlsx/UBACYT-consolidado-2021-2022-2023.xlsx` e incorporar los años nuevos,
+   manteniendo las nueve columnas de la hoja `Datos`.
 2. Actualizar `fuentes-ubacyt.json` con las fuentes de los nuevos listados.
 3. Instalar `requirements-grafos.txt` y ejecutar toda la notebook
    [notebooks/ubacyt_grafo.ipynb](notebooks/ubacyt_grafo.ipynb).
@@ -54,6 +58,7 @@ El JSON con los datos y las posiciones ya está incluido para explorar localment
 
 ```sh
 python scripts/build_web_data.py
+python scripts/validate_web_data.py
 cd web
 pnpm layout
 pnpm test
@@ -72,8 +77,9 @@ para hacer coincidir los resultados.
 
 ## GitHub Pages y Actions
 
-El workflow [.github/workflows/pages.yml](.github/workflows/pages.yml) reconstruye
-los datos, calcula el layout, ejecuta las pruebas y compila el sitio. En `main`
+El workflow [.github/workflows/pages.yml](.github/workflows/pages.yml) coteja todos
+los nodos, prestigios y conexiones del JSON con los CSV y las participaciones
+procesadas, calcula el layout, ejecuta las pruebas y compila el sitio. En `main`
 publica mediante GitHub Pages. En los pull requests solo valida y construye.
 
 El repositorio debe llamarse `grafo_investigacion` dentro de la cuenta `bustosthl`.
@@ -96,7 +102,7 @@ que la ejecución del workflow haya terminado correctamente.
 
 ## Datos y documentación
 
-- [Excel consolidado](output/xlsx/UBACYT-consolidado-2021-2022-2023.xlsx).
+- Excel consolidado: entrada de trabajo local, fuera del repositorio público.
 - [Nodos](output/grafos/ubacyt/nodos_ubacyt.csv) y [conexiones](output/grafos/ubacyt/conexiones_ubacyt.csv).
 - [Criterios del grafo](docs/criterios_grafo_ubacyt.md) y [criterios del visor](docs/visor_web.md).
 - [Catálogo de fuentes oficiales](fuentes-ubacyt.json).

@@ -15,9 +15,6 @@ Thumbs.db
 
 # Solo se versionan las entradas que usa la notebook y el visor.
 output/*
-!output/xlsx/
-output/xlsx/*
-!output/xlsx/UBACYT-consolidado-2021-2022-2023.xlsx
 !output/grafos/
 output/grafos/*
 !output/grafos/ubacyt/
