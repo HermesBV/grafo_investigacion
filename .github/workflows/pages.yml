@@ -1,0 +1,71 @@
+name: Validar y publicar el grafo
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v6
+      - name: Preparar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          package_json_file: web/package.json
+      - name: Preparar Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - name: Preparar Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Instalar el visor
+        working-directory: web
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Cotejar todos los datos públicos
+        run: python scripts/validate_web_data.py
+      - name: Calcular las posiciones
+        working-directory: web
+        run: pnpm layout
+      - name: Probar filtros e integridad
+        working-directory: web
+        run: pnpm test
+      - name: Construir GitHub Pages
+        working-directory: web
+        run: pnpm build
+      - name: Guardar el sitio
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: web/dist
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4
