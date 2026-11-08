@@ -4,8 +4,8 @@
 
 La entrada es la hoja `Datos` del Excel consolidado. Se conserva un respaldo
 íntegro antes de modificarlo. Se eliminan solo copias que coincidan exactamente
-en año del listado, código de proyecto, convocatoria, integrante, rol, título
-y unidad académica. Se ignoran únicamente `Página PDF` y `Fila en página` para
+en año del listado, código de proyecto, convocatoria, integrante, rol, título,
+unidad académica y `Tipo de proyecto`. Se ignoran únicamente `Página PDF` y `Fila en página` para
 detectar esas copias, según el criterio confirmado por el usuario.
 
 Se conserva la primera aparición y sus referencias al PDF. No se normalizan
@@ -94,16 +94,24 @@ son `nodos = 1` y `conexiones = 1`.
 
 Para incorporar otros tipos:
 
-1. Confirmar que la función `detectar_tipo` reconoce sus códigos.
+1. Informar `Tipo de proyecto` explícitamente en cada fila (`PIP`, `PICT`, `PRII`, etc.).
 2. Definir explícitamente sus multiplicadores de nodos y conexiones.
 3. Agregar el tipo a `TIPOS_INCLUIDOS`.
 4. Asignar puntaje a los roles nuevos que la notebook señale.
 
-PDE y PIUBAS se reconocen actualmente para excluirlos de estos primeros grafos.
-Un código de tipo desconocido o un tipo incluido sin multiplicadores genera
-un error visible. Si cambia la estructura del Excel, hay que actualizar la
+El tipo se lee de la columna, no se infiere del código. La identidad compuesta
+impide mezclar dos financiamientos que usen el mismo código. PDE y PIUBAS se
+conservan en la base, excluidos de estos primeros grafos. Un tipo incluido sin
+multiplicadores genera un error visible. Si cambia la estructura del Excel, hay que actualizar la
 lista de columnas y la clave de duplicados; no se descartan columnas nuevas
 silenciosamente.
+
+La migración de la base histórica de nueve columnas se reproduce con
+`python scripts/migrate_project_types.py`. Agrega la décima columna, respalda el
+libro y comprueba que todas las celdas originales permanezcan iguales. Solo esa
+migración infiere UBACYT, PDE y PIUBAS de los códigos históricos. Si la columna
+ya existe, valida su contenido sin reescribir el libro. Las nuevas bases deben
+informarla desde su construcción. Ver [modelo de datos](modelo_datos.md).
 
 ## Archivos y reproducción
 

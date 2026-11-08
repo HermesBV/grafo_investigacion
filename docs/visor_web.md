@@ -24,7 +24,12 @@ produce un error para que se revise antes de incorporarla.
 
 ## Filtros
 
-Los campos se combinan con AND. Unidad, código y título seleccionan **proyectos**.
+Tipo de proyecto, unidad académica y rol tienen desplegables de selección múltiple
+con casillas. Dentro de cada desplegable se usa OR: alcanza con coincidir con una
+opción marcada. Sin opciones marcadas se incluyen todas. El botón superior de
+cada desplegable borra su selección; “Limpiar” restablece todos los campos.
+
+Los campos se combinan con AND. Tipo, unidad, código y título seleccionan **proyectos**.
 Los códigos y títulos admiten coincidencias parciales. Un proyecto puede tener
 versiones de título y unidad en distintos listados: cualquiera de sus versiones
 observadas puede coincidir. Los roles se evalúan dentro del mismo proyecto que
@@ -37,8 +42,8 @@ activado se muestran los integrantes de los proyectos donde coincide una persona
 Al desactivarlo quedan exclusivamente las personas cuyo nombre coincide.
 
 El prestigio mantiene su valor acumulado original al filtrar. El peso de cada
-arista se vuelve a calcular por proyectos seleccionados: se cuentan únicamente
-grupos visibles compartidos. Los nodos que permanecen solos también se muestran.
+arista se vuelve a calcular por proyectos seleccionados: se suman los multiplicadores
+de conexiones de sus tipos (UBACYT = 1). Los nodos que permanecen solos también se muestran.
 Las tarjetas de personas distinguen métricas globales y colaboradores de la vista.
 
 Los campos **Mínimo de conexiones** y **Mínimo de proyectos** filtran personas por
@@ -116,18 +121,22 @@ conexiones, pesos, grados, participaciones y hashes. Así la publicación no req
 acceso al consolidado completo. La regeneración desde el Excel se ejecuta localmente
 con la notebook y `scripts/build_web_data.py` antes de subir nuevos datos procesados.
 
-`web/public/data/graph.json` usa arrays compactos para reducir la transferencia:
+`web/public/data/graph.json` (schemaVersion 2) usa arrays compactos para reducir la transferencia:
 
 - `nodes`: `[Id, nombre, prestigio, grado, grado ponderado, cantidad de proyectos,
   xForce, yForce, xCentralidad, yCentralidad]`.
 - `projects`: `[código, títulos originales normalizados en espacios, índices de
-  unidades canónicas, miembros, años, denominaciones originales de unidad]`.
+  unidades canónicas, miembros, años, denominaciones originales de unidad, tipo]`.
 - Cada miembro: `[índice de persona, índices de roles observados, años observados]`.
 - `edges`: `[índice persona A, índice persona B, peso acumulado]`.
 - `meta`: recuentos, sumas de control, años, escala de roles, fuentes y SHA-256 de
-  los archivos de entrada. `roles` y `units` son los catálogos de índices.
+  los archivos de entrada y `projectTypeWeights` con los multiplicadores de nodos
+  y conexiones por tipo. `roles` y `units` son los catálogos de índices;
+  `types` contiene los tipos presentes. La clave del proyecto es `(tipo, código)`.
 
 Para años o grupos nuevos, ejecutar primero la notebook, luego el generador de
 datos y el layout. El README contiene los comandos. Se deben agregar las fuentes
-anuales al catálogo. Si se introduce otro tipo de proyecto, adaptar las reglas y
-el esquema antes de publicar: el generador se detiene ante tipos nuevos.
+anuales al catálogo. Para incorporar otro financiamiento, informar `Tipo de proyecto`,
+definir ambos multiplicadores y agregarlo a `TIPOS_INCLUIDOS` en la notebook. No se
+asignan automáticamente pesos a PIP, PICT o PRII. Las fuentes de otros tipos deben
+declarar `project_type` en el catálogo. Ver [modelo de datos](modelo_datos.md).
