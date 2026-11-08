@@ -15,8 +15,9 @@ distinto; los criterios y las limitaciones están en
 
 - Tamaño y color de cada nodo según su prestigio acumulado. Nombre completo como etiqueta.
 - Grosor de las aristas según su peso; color para pesos 1, 2 y 3 o más.
-- Distribuciones por colaboraciones (ForceAtlas2) y por centralidad de grado global.
-- Filtros combinables por unidad académica, rol, integrante, código y título.
+- Distribuciones por colaboraciones (comunidades Louvain y ForceAtlas2 ponderado) y por centralidad de grado global.
+- Filtros de selección múltiple por tipo de proyecto, unidad académica y rol;
+  campos de integrante, código y título. OR dentro de cada desplegable, AND entre campos.
 - Mínimos de conexiones y proyectos por persona, con cualquier entero del rango
   completo de la base (actualmente 0–75 colaboradores y 0–5 proyectos). Se aplican
   ambos mínimos sobre los totales acumulados; cero no restringe.
@@ -50,7 +51,9 @@ entrada local y no forma parte del repositorio público.
 
 1. Ubicar el Excel de trabajo local en
    `output/xlsx/UBACYT-consolidado-2021-2022-2023.xlsx` e incorporar los años nuevos,
-   manteniendo las nueve columnas de la hoja `Datos`.
+   manteniendo las diez columnas de la hoja `Datos`, incluida **Tipo de proyecto**.
+   La base histórica de nueve columnas se migra una sola vez con
+   `python scripts/migrate_project_types.py`; crea respaldo y verifica todas las celdas originales.
 2. Actualizar `fuentes-ubacyt.json` con las fuentes de los nuevos listados.
 3. Instalar `requirements-grafos.txt` y ejecutar toda la notebook
    [notebooks/ubacyt_grafo.ipynb](notebooks/ubacyt_grafo.ipynb).
@@ -67,9 +70,14 @@ pnpm preview
 ```
 
 `build_web_data.py --excel ruta/al/consolidado.xlsx` admite otro nombre de archivo.
+La notebook permite cambiar `RUTA_EXCEL` o definir la variable `GRAFO_EXCEL` con esa ruta.
 Si se usan equivalencias de personas en `ALIAS_PERSONAS`, pasarlas también mediante
-`--aliases ruta/aliases.json`. Las unidades académicas nuevas y los tipos de
-proyecto nuevos requieren actualizar las equivalencias y reglas de forma explícita.
+`--aliases ruta/aliases.json`. Las unidades académicas nuevas requieren revisar sus
+equivalencias. Para otros financiamientos, completar `Tipo de proyecto` en cada
+fila, definir los multiplicadores de nodos y conexiones y agregarlos a los tipos
+incluidos en la notebook. Actualmente solo se incluye UBACYT (1 y 1); no se han
+asignado pesos a PIP, PICT o PRII. La clave de proyecto es `(tipo, código)`.
+El contrato para integrar otras bases está en [docs/modelo_datos.md](docs/modelo_datos.md).
 
 El generador compara **cada nodo, su prestigio y cada arista con su peso** con los
 CSV de la notebook. Ante una diferencia detiene la construcción. No descarta datos
