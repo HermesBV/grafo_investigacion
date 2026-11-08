@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#173f3b" />
+  <meta name="description" content="Explorá las personas, los proyectos y las colaboraciones de la investigación UBACyT. Listados 2021, 2022 y 2023." />
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+  <title>Tramas de investigación · UBACyT</title>
+</head>
+<body>
+  <header class="header">
+    <a class="brand" href="./" aria-label="Inicio de Tramas de investigación">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M9 12 28 8 31 30 9 12 10 31 28 8"/><circle cx="9" cy="12" r="4"/><circle cx="28" cy="8" r="5"/><circle cx="31" cy="30" r="4"/><circle cx="10" cy="31" r="3"/></svg>
+      <span><span class="eyebrow">EXPLORADOR UBACyT</span><strong>Tramas de investigación</strong></span>
+    </a>
+    <div class="header-end"><span class="period"><i></i> Listados <span id="years">2021–2023</span></span><button class="text-button" id="about">Cómo leer el grafo <span aria-hidden="true">↗</span></button></div>
+  </header>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Filtros y personas">
+      <div class="sidebar-heading"><div><span class="eyebrow">ENCONTRÁ CONEXIONES</span><h1>Explorar la red</h1></div><button id="close-filters" class="icon-button mobile-only" aria-label="Cerrar filtros">×</button></div>
+      <form id="filters" autocomplete="off">
+        <label for="unit">Unidad académica</label><select id="unit"><option value="">Todas las unidades</option></select>
+        <label for="role">Rol en el proyecto</label><select id="role"><option value="">Todos los roles</option></select>
+        <label for="name">Integrante</label><input id="name" type="search" placeholder="Nombre o apellido" />
+        <label class="checkbox"><input id="neighbors" type="checkbox" checked /> Ver sus colaboradores</label>
+        <label for="code">Código del proyecto</label><input id="code" type="search" placeholder="Código completo o parcial" />
+        <label for="title">Título del proyecto</label><input id="title" type="search" placeholder="Palabras del título" />
+        <fieldset class="minimum-filters">
+          <legend>Mínimos por persona</legend>
+          <div class="minimum-grid">
+            <div class="minimum-field">
+              <label for="min-connections">Mínimo de conexiones</label>
+              <input id="min-connections" type="number" min="0" step="1" value="0" inputmode="numeric" aria-describedby="min-connections-range minimum-help minimum-error" disabled />
+              <small id="min-connections-range">Cargando rango…</small>
+            </div>
+            <div class="minimum-field">
+              <label for="min-projects">Mínimo de proyectos</label>
+              <input id="min-projects" type="number" min="0" step="1" value="0" inputmode="numeric" aria-describedby="min-projects-range minimum-help minimum-error" disabled />
+              <small id="min-projects-range">Cargando rango…</small>
+            </div>
+          </div>
+          <p class="minimum-help" id="minimum-help">Totales en toda la base. Conexiones = colaboradores distintos. Se deben cumplir ambos mínimos; 0 no restringe.</p>
+          <p class="minimum-error" id="minimum-error" role="status" hidden></p>
+        </fieldset>
+        <div class="filter-footer"><span id="filter-count">Sin filtros activos</span><button type="reset" class="text-button">Limpiar</button></div>
+      </form>
+      <div class="people-heading"><h2 id="people-title">Personas destacadas</h2><span id="people-total"></span></div>
+      <p class="people-help" id="people-help">Ordenadas por prestigio acumulado.</p>
+      <div id="people" class="people-list" aria-label="Personas visibles"></div>
+      <p class="sidebar-note">Red acumulada de proyectos distintos. Un proyecto presente en varios años se cuenta una sola vez.</p>
+    </aside>
+    <main class="main">
+      <div class="toolbar">
+        <button id="open-filters" class="button mobile-only">Filtros <span id="mobile-count"></span></button>
+        <div class="stats" aria-live="polite"><span><strong id="node-count">—</strong> personas</span><span><strong id="edge-count">—</strong> conexiones</span><span><strong id="project-count">—</strong> proyectos</span></div>
+        <label class="layout-label" for="layout">Distribución <select id="layout" aria-label="Distribución"><option value="force">Colaboraciones</option><option value="centrality">Centralidad de grado</option></select></label>
+      </div>
+      <section class="canvas-shell" aria-label="Grafo de colaboraciones">
+        <div id="graph" role="img" aria-label="Red interactiva de personas y proyectos UBACyT. También podés seleccionar personas en la lista de filtros."></div>
+        <div class="map-caption"><span class="eyebrow" id="map-caption">UN PROYECTO COMPARTIDO, UNA CONEXIÓN</span><p id="layout-description">Las colaboraciones acercan a las personas.</p></div>
+        <div id="status" class="status" role="status"><div class="spinner"></div><h2>Conectando la investigación</h2><p>Cargando personas y proyectos…</p></div>
+        <aside id="inspector" class="inspector" hidden aria-label="Detalle de integrante"></aside>
+        <div class="graph-tools" aria-label="Controles del grafo"><button id="zoom-in" class="icon-button" aria-label="Acercar" title="Acercar">+</button><button id="zoom-out" class="icon-button" aria-label="Alejar" title="Alejar">−</button><button id="fit" class="icon-button" aria-label="Ver toda la red" title="Ver toda la red">⤢</button><button id="labels" class="icon-button label-button" aria-label="Mostrar más nombres" aria-pressed="false" title="Mostrar más nombres">Aa</button></div>
+        <div class="legend"><div><span class="legend-heading">PERSONAS · PRESTIGIO</span><div class="prestige-key"><i class="dot small"></i><div class="color-ramp"></div><i class="dot large"></i></div><div class="legend-extents"><span id="prestige-min">1</span><span id="prestige-max">—</span></div></div><div><span class="legend-heading">CONEXIONES · PESO</span><div class="edge-key"><span><i class="edge-one"></i>1</span><span><i class="edge-two"></i>2</span><span><i class="edge-many"></i>3+</span></div></div></div>
+        <div class="map-tip" id="map-tip">Arrastrá para recorrer · Acercá para leer los nombres · Tocá una persona</div>
+      </section>
+      <footer class="footer"><span>Universidad de Buenos Aires · Proyectos UBACyT</span><button class="text-button" id="sources">Fuentes y criterios</button><a href="https://github.com/bustosthl/grafo_investigacion" target="_blank" rel="noreferrer">Código en GitHub ↗</a></footer>
+    </main>
+  </div>
+  <dialog id="methodology"><div class="dialog-header"><span class="eyebrow">DATOS Y MÉTODO</span><button id="close-about" class="icon-button" aria-label="Cerrar explicación">×</button></div><h2>Cómo leer esta red</h2><div id="methodology-content"></div><button id="done-about" class="button primary">Volver a explorar</button></dialog>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
