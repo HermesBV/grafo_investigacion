@@ -5,7 +5,7 @@
 La entrada es la hoja `Datos` del Excel consolidado. Se conserva un respaldo
 íntegro antes de modificarlo. Se eliminan solo copias que coincidan exactamente
 en año del listado, código de proyecto, convocatoria, integrante, rol, título,
-unidad académica y `Tipo de proyecto`. Se ignoran únicamente `Página PDF` y `Fila en página` para
+unidad académica, `Tipo de proyecto` y `fuente_completa`. Se ignoran únicamente `Página PDF` y `Fila en página` para
 detectar esas copias, según el criterio confirmado por el usuario.
 
 Se conserva la primera aparición y sus referencias al PDF. No se normalizan
@@ -146,3 +146,7 @@ los identificadores y el peso de **cada conexión** mediante la intersección
 de los proyectos de sus extremos. Se verifica que duplicar un corte anual no
 infle el grafo y se ejecutan casos pequeños con resultados conocidos. Después
 de exportar se releen los dos CSV y el Excel limpio y se comparan sus datos.
+
+## Cobertura e importación de Excel
+
+Ver [actualización local y cobertura](actualizacion_local.md). La columna `fuente_completa` distingue nóminas completas y fuentes con dirección/codirección. El grafo acumula solamente personas observadas, sin imputar equipos de años anteriores.
