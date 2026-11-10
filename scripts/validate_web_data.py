@@ -22,7 +22,7 @@ def main():
     graph = json.loads((ROOT/'web/public/data/graph.json').read_text(encoding='utf-8'))
     base = ROOT/'output/grafos/ubacyt'
     config = json.loads((base/'ultima_ejecucion.json').read_text(encoding='utf-8'))
-    assert graph['schemaVersion'] == 2
+    assert graph['schemaVersion'] == 3
     assert graph['meta']['roleScores'] == config['puntos_rol']
     assert graph['meta']['projectTypeWeights'] == {kind:config['pesos_tipo'][kind] for kind in config['tipos_incluidos']}
     nodes = graph['nodes']
@@ -41,7 +41,8 @@ def main():
     memberships = 0
     for p in graph['projects']:
         code, titles, units, members, years = p[:5]
-        assert len(p)==7
+        assert len(p)==8
+        assert set(p[7])<=set(graph['coverages'])
         kind=p[6]
         assert kind in graph['types'] and kind in config['tipos_incluidos']
         assert code and (kind,code) not in codes, 'Clave de proyecto repetida o vacía'
@@ -53,7 +54,11 @@ def main():
         indexes = [m[0] for m in members]
         assert len(indexes) == len(set(indexes)), 'Participaciones repetidas'
         memberships += len(members)
-        for index, roles, observed_years in members:
+        for index, roles, observed_years, observations in members:
+            assert observations
+            assert {o[0] for o in observations}==set(observed_years)
+            assert {o[2] for o in observations}==set(roles)
+            assert all(o[1] in p[7] for o in observations)
             assert 0 <= index < len(nodes) and roles and observed_years
             assert len(roles) == len(set(roles))
             assert all(0 <= r < len(graph['roles']) for r in roles)
