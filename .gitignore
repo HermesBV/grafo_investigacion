@@ -25,3 +25,7 @@ output/grafos/ubacyt/*
 
 # Nota personal: no forma parte del sitio.
 links_interes.txt
+
+# Accesos y configuración exclusivos de esta computadora
+local/
+*.local.cmd
