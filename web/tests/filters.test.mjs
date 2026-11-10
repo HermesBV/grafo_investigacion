@@ -87,7 +87,7 @@ test('grafo real: IDs, miembros, roles, unidades y posiciones son válidos',()=>
   assert.equal(new Set(real.nodes.map(n=>n[0])).size,real.nodes.length);
   for(const n of real.nodes){assert.equal(n.length,10);assert.ok(n.slice(2).every(Number.isFinite));}
   for(const p of real.projects){
-    assert.equal(p.length,7);assert.ok(real.types.includes(p[6]));
+    assert.equal(p.length,8);assert.ok(real.types.includes(p[6]));
     assert.equal(new Set(p[3].map(m=>m[0])).size,p[3].length);
     for(const u of p[2])assert.ok(u>=0&&u<real.units.length);
     for(const m of p[3]){assert.ok(real.nodes[m[0]]);for(const role of m[1])assert.ok(real.roles[role]);}
@@ -111,4 +111,16 @@ test('grafo real: todo el rango, incluidos ambos máximos, se puede utilizar',()
   for(const [field,index,max] of [['minConnections',3,limits.maxConnections],['minProjects',5,limits.maxProjects]]) {
     assert.deepEqual(filterGraph(real,{[field]:max}).nodes,real.nodes.flatMap((n,i)=>n[index]>=max?[i]:[]));
   }
+});
+
+test('cobertura y rol coinciden en la misma observación, sin trasladar equipos',()=>{
+ const d={...mixed,projects:[['P',['Prueba'],[0],[
+ [0,[0,1],[2023,2024],[[2023,'completa',1],[2024,'sólo dirección y codirección',0]]],
+ [1,[1],[2023],[[2023,'completa',1]]],
+ [2,[0],[2024],[[2024,'sólo dirección y codirección',0]]]
+ ],[2023,2024],[],'UBACYT',['completa','sólo dirección y codirección']]]};
+ assert.deepEqual(filterGraph(d,{coverages:['sólo dirección y codirección']}).nodes,[0,2]);
+ assert.deepEqual(filterGraph(d,{coverages:['completa'],roles:['0']}).nodes,[]);
+ assert.deepEqual(filterGraph(d,{coverages:['completa']}).nodes,[0,1]);
+ assert.deepEqual(filterGraph(d,{coverages:['completa','sólo dirección y codirección']}).nodes,[0,1,2]);
 });
