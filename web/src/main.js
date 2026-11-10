@@ -40,21 +40,54 @@ function setStatus(title,message,kind='loading') {
   $('retry')?.addEventListener('click',()=>location.reload());
 }
 
+// Canvas labels use explicit dark-theme colors in both normal and hover layers.
+function drawReadableLabel(context,node,settings,hover=false) {
+  if(!node.label)return;
+  context.save();
+  const fontSize=hover?Math.max(12,settings.labelSize):settings.labelSize;
+  context.font=`${hover?'600':settings.labelWeight} ${fontSize}px ${settings.labelFont}`;
+  context.textAlign='left';context.textBaseline='alphabetic';
+  const transform=context.getTransform();
+  const canvasWidth=context.canvas.width/Math.abs(transform.a||1);
+  const canvasHeight=context.canvas.height/Math.abs(transform.d||1);
+  const padding=hover?7:4, margin=6;
+  const maxWidth=Math.max(20,canvasWidth-2*(padding+margin));
+  const lines=[];let line='';
+  // Wrap names at spaces, retaining the full name even on narrow screens.
+  for(const word of String(node.label).split(/\s+/)) {
+    const candidate=line?line+' '+word:word;
+    if(line&&context.measureText(candidate).width>maxWidth){lines.push(line);line=word;}
+    else line=candidate;
+  }
+  if(line)lines.push(line);
+  const width=Math.max(...lines.map(l=>context.measureText(l).width));
+  const lineHeight=fontSize+3, height=lines.length*lineHeight;
+  let x=node.x+node.size+5;
+  if(x+width+padding>canvasWidth-margin)x=node.x-node.size-5-width;
+  x=Math.max(padding+margin,Math.min(x,canvasWidth-width-padding-margin));
+  const top=Math.max(margin,Math.min(node.y-height/2-padding,canvasHeight-height-2*padding-margin));
+  if(hover){
+    context.fillStyle='#17251d';context.strokeStyle='#7fdbb5';context.lineWidth=1;
+    context.beginPath();context.roundRect(x-padding,top,width+2*padding,height+2*padding,5);
+    context.fill();context.stroke();
+  }
+  context.lineJoin='round';context.lineWidth=3;
+  context.strokeStyle=hover?'#17251d':'#222222';context.fillStyle='#ffffff';
+  lines.forEach((text,i)=>{
+    const y=top+padding+fontSize+i*lineHeight;
+    if(!hover)context.strokeText(text,x,y);
+    context.fillText(text,x,y);
+  });
+  context.restore();
+}
+
 function makeRenderer() {
   const options={stagePadding:55,itemSizesReference:'screen',minEdgeThickness:.3,labelDensity:.35,labelGridCellSize:110,labelRenderedSizeThreshold:8,
     hideEdgesOnMove:false,hideLabelsOnMove:false,minCameraRatio:.003,maxCameraRatio:3,enableEdgeEvents:true,enableCameraRotation:false,
     labelColor:{color:'#f3f5f3'},labelSize:11,labelFont:'Arial',zIndex:true,
     nodeReducer:(id,a)=>({...a,color:fade(a.color,a.opacity),forceLabel:a.focused,highlighted:a.focused,zIndex:a.focused?1:0}),
-    defaultDrawNodeLabel:(context,node,settings)=>{
-      if(!node.label)return;
-      context.font=`${settings.labelWeight} ${settings.labelSize}px ${settings.labelFont}`;
-      context.fillStyle=settings.labelColor.color;
-      const width=context.measureText(node.label).width;
-      const canvasWidth=context.canvas.width/context.getTransform().a;
-      let x=node.x+node.size+4;
-      if(x+width>canvasWidth-6)x=Math.max(6,node.x-node.size-4-width);
-      context.fillText(node.label,x,node.y+settings.labelSize/3);
-    },
+    defaultDrawNodeLabel:drawReadableLabel,
+    defaultDrawNodeHover:(context,node,settings)=>drawReadableLabel(context,node,settings,true),
     edgeReducer:(id,a)=>({...a,color:fade(a.color,a.opacity)})};
   renderer=new Sigma(graph,$('graph'),options);
   renderer.on('clickNode',({node})=>selectPerson(Number(node),false));
