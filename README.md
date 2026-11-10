@@ -1,11 +1,11 @@
 # Tramas de investigación · UBACyT
 
 Visor de personas y colaboraciones construido a partir de los listados de proyectos
-vigentes de la Universidad de Buenos Aires de **2021, 2022 y 2023**.
+vigentes de la Universidad de Buenos Aires de **2021, 2022, 2023, 2024 y 2026**.
 
 Destino de publicación: **https://bustosthl.github.io/grafo_investigacion/**.
 
-La base actual contiene **16.772 personas, 118.489 conexiones y 2.463 proyectos**.
+La base actual contiene **16.959 personas, 119.769 conexiones y 3.225 proyectos**.
 Las conexiones son no dirigidas. Cada proyecto distinto compartido aporta un punto
 al peso de la conexión. El prestigio suma los puntajes de los roles por proyecto
 distinto; los criterios y las limitaciones están en
@@ -19,7 +19,7 @@ distinto; los criterios y las limitaciones están en
 - Filtros de selección múltiple por tipo de proyecto, unidad académica y rol;
   campos de integrante, código y título. OR dentro de cada desplegable, AND entre campos.
 - Mínimos de conexiones y proyectos por persona, con cualquier entero del rango
-  completo de la base (actualmente 0–75 colaboradores y 0–5 proyectos). Se aplican
+  completo de la base (actualmente 0–75 colaboradores y 0–6 proyectos). Se aplican
   ambos mínimos sobre los totales acumulados; cero no restringe.
 - Detalle de las personas, sus roles y proyectos; detalle de las conexiones al tocarlas.
 - Diseño adaptable al celular. Los filtros se abren con el botón “Filtros”.
@@ -51,7 +51,7 @@ entrada local y no forma parte del repositorio público.
 
 1. Ubicar el Excel de trabajo local en
    `output/xlsx/UBACYT-consolidado-2021-2022-2023.xlsx` e incorporar los años nuevos,
-   manteniendo las diez columnas de la hoja `Datos`, incluida **Tipo de proyecto**.
+   manteniendo las once columnas de la hoja `Datos`, incluidas **Tipo de proyecto** y **fuente_completa**.
    La base histórica de nueve columnas se migra una sola vez con
    `python scripts/migrate_project_types.py`; crea respaldo y verifica todas las celdas originales.
 2. Actualizar `fuentes-ubacyt.json` con las fuentes de los nuevos listados.
@@ -117,3 +117,7 @@ que la ejecución del workflow haya terminado correctamente.
 
 Los PDF originales se enlazan en el catálogo y en el visor; los respaldos,
 auditorías y dependencias locales quedan fuera del repositorio.
+
+## Actualización con doble clic
+
+Ver [accesos locales, ejecución de la notebook y cobertura](docs/actualizacion_local.md). El consolidado mantiene su nombre histórico 2021–2023 y ahora integra también los cortes 2024 y 2026. No se incorporó un listado 2025 sin fuente verificable.

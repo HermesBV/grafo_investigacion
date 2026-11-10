@@ -93,7 +93,7 @@ def main():
         if year not in config['anios']:
             continue
         source_rows += 1
-        exact = tuple(row[c] for c in ['Año del listado','Código proyecto','Convocatoria','Integrante','Rol integrante','Título del proyecto','Unidad académica','Tipo de proyecto'])
+        exact = tuple(row[c] for c in ['Año del listado','Código proyecto','Convocatoria','Integrante','Rol integrante','Título del proyecto','Unidad académica','Tipo de proyecto','fuente_completa'])
         assert exact not in seen, 'Ejecutar primero la deduplicación de la notebook'
         seen.add(exact)
         name = spaces(row['Integrante']).upper()
@@ -106,12 +106,16 @@ def main():
         canonical_role = role(row['Rol integrante'])
         if canonical_role not in role_ids:
             raise ValueError(f'Rol sin puntaje: {canonical_role}')
-        p = projects.setdefault((kind,code), {'titles':set(), 'units':set(), 'raw_units':set(), 'years':set(), 'members':{}})
+        p = projects.setdefault((kind,code), {'titles':set(), 'units':set(), 'raw_units':set(), 'years':set(), 'members':{}, 'coverage':set()})
         p['titles'].add(spaces(row['Título del proyecto']))
         p['units'].add(canonical_unit(row['Unidad académica']))
         p['raw_units'].add(spaces(row['Unidad académica']))
         p['years'].add(year)
-        member = p['members'].setdefault(index, {'roles':set(), 'years':set()})
+        coverage=row['fuente_completa']
+        assert coverage in ['completa','sólo dirección y codirección']
+        p['coverage'].add(coverage)
+        member = p['members'].setdefault(index, {'roles':set(), 'years':set(), 'observations':set()})
+        member['observations'].add((year,coverage,role_ids[canonical_role]))
         member['roles'].add(role_ids[canonical_role])
         member['years'].add(year)
         years.add(year)
@@ -132,7 +136,7 @@ def main():
         for a,b in itertools.combinations(members,2):
             edges[a,b] += edge_multiplier
         output_projects.append([code, sorted(p['titles']), sorted(unit_ids[u] for u in p['units']),
-                                [[index, sorted(p['members'][index]['roles']), sorted(p['members'][index]['years'])] for index in members], sorted(p['years']), sorted(p['raw_units']),kind])
+                                [[index, sorted(p['members'][index]['roles']), sorted(p['members'][index]['years']), sorted(p['members'][index]['observations'])] for index in members], sorted(p['years']), sorted(p['raw_units']),kind,sorted(p['coverage'])])
     for i,n in enumerate(nodes):
         assert prestige[i] == float(n['prestigio']), f'Prestigio distinto: {n["Label"]}'
     expected = Counter()
@@ -150,18 +154,23 @@ def main():
     output_nodes = [[n['Id'], n['Label'], float(n['prestigio']), degree[i], strength[i], project_counts[i]] for i,n in enumerate(nodes)]
     sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
     catalog = json.loads((ROOT/'fuentes-ubacyt.json').read_text(encoding='utf-8'))
-    sources = [{'year':e['year'],'url':e['url'],'type':e.get('project_type','UBACYT').upper()} for e in catalog['entries'] if e.get('level')=='integrantes' and e['year'] in years and e.get('project_type','UBACYT').upper() in included_types]
-    observed={(kind,year) for (kind,_),p in projects.items() for year in p['years']}
-    assert observed <= {(s['type'],s['year']) for s in sources}, 'Falta registrar una fuente anual por tipo en fuentes-ubacyt.json'
+    observed={(kind,o[0],o[1]) for (kind,_),p in projects.items() for member in p['members'].values() for o in member['observations']}
+    sources=[]
+    for e in catalog['entries']:
+        kind=e.get('project_type','UBACYT').upper()
+        coverage='completa' if e.get('level')=='integrantes' else 'sólo dirección y codirección'
+        if (kind,e['year'],coverage) in observed and e.get('level') in ['integrantes','proyectos']:
+            sources.append({'year':e['year'],'url':e['url'],'type':kind,'coverage':coverage})
+    assert observed <= {(s['type'],s['year'],s['coverage']) for s in sources}, 'Falta registrar una fuente anual y su cobertura en el catálogo'
     output = {
-        'schemaVersion':2,
+        'schemaVersion':3,
         'meta': {'years':sorted(years), 'nodes':len(nodes), 'edges':len(edges), 'projects':len(projects),
                  'memberships':sum(len(p['members']) for p in projects.values()), 'sourceRows':source_rows,
                  'totalPrestige':sum(prestige.values()), 'totalEdgeWeight':sum(edges.values()),
                  'projectTypeWeights':{kind:config['pesos_tipo'][kind] for kind in sorted(included_types)}, 'roleScores':config['puntos_rol'],
                  'sourceHashes':{'excel':sha(args.excel), 'nodes':sha(source/'nodos_ubacyt.csv'), 'edges':sha(source/'conexiones_ubacyt.csv')},
                  'sources':sorted(sources,key=lambda s:s['year'])},
-        'roles':roles, 'units':units, 'types':sorted({kind for kind,_ in projects}),'nodes':output_nodes, 'projects':output_projects,
+        'coverages':['completa','sólo dirección y codirección'], 'roles':roles, 'units':units, 'types':sorted({kind for kind,_ in projects}),'nodes':output_nodes, 'projects':output_projects,
         'edges':[[a,b,w] for (a,b),w in sorted(edges.items())]
     }
     path = ROOT/'web/public/data/graph.json'

@@ -140,3 +140,7 @@ anuales al catálogo. Para incorporar otro financiamiento, informar `Tipo de pro
 definir ambos multiplicadores y agregarlo a `TIPOS_INCLUIDOS` en la notebook. No se
 asignan automáticamente pesos a PIP, PICT o PRII. Las fuentes de otros tipos deben
 declarar `project_type` en el catálogo. Ver [modelo de datos](modelo_datos.md).
+
+## Cobertura y esquema web 3
+
+La base tiene once columnas: se agrega `fuente_completa` (completa / sólo dirección y codirección). En el JSON cada proyecto incorpora coberturas en project[7]; cada miembro agrega observaciones [año,cobertura,rol] en member[3]. El filtro usa esa observación para no trasladar integrantes o roles de una fuente completa a otra parcial. Ver [actualización local](actualizacion_local.md). Los recuentos y rangos actuales se calculan desde los datos al cargar el visor.

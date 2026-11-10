@@ -68,3 +68,7 @@ multiplicadores de nodos y conexiones. No se fusionan grupos por código solo.
 Los filtros de tipo, unidad y rol admiten varias opciones: OR entre opciones del
 mismo filtro y AND entre filtros distintos. Los mínimos de actividad conservan
 su criterio global sobre toda la base del visor.
+
+## Cobertura y esquema web 3
+
+La base tiene once columnas: se agrega `fuente_completa` (completa / sólo dirección y codirección). En el JSON cada proyecto incorpora coberturas en project[7]; cada miembro agrega observaciones [año,cobertura,rol] en member[3]. El filtro usa esa observación para no trasladar integrantes o roles de una fuente completa a otra parcial. Ver [actualización local](actualizacion_local.md). Los recuentos y rangos actuales se calculan desde los datos al cargar el visor.

@@ -1,19 +1,21 @@
 {
-  "fecha_utc": "20261108T220030465505Z",
+  "fecha_utc": "20261110T134500621299Z",
   "archivo_base": "C:\\Users\\tomas.bustos\\Documents\\personal\\uba\\grafo_investigacion\\output\\xlsx\\UBACYT-consolidado-2021-2022-2023.xlsx",
   "hoja": "Datos",
-  "hash_base_entrada": "a5b0ed79f5ab80d9bffaffbca33d7fe9d0621258de5f66011f08d26a3e0ada8c",
-  "hash_base_salida": "a5b0ed79f5ab80d9bffaffbca33d7fe9d0621258de5f66011f08d26a3e0ada8c",
+  "hash_base_entrada": "b4b92d7143c66549a0c8241eb02e2259026ab2d93b8f271cd21ba8dd53b6ae3b",
+  "hash_base_salida": "b4b92d7143c66549a0c8241eb02e2259026ab2d93b8f271cd21ba8dd53b6ae3b",
   "respaldo": null,
-  "filas_entrada": 43168,
+  "filas_entrada": 46919,
   "duplicados_eliminados": 0,
-  "filas_base_limpia": 43168,
-  "filas_grafo": 41164,
-  "filas_otros_programas": 2004,
+  "filas_base_limpia": 46919,
+  "filas_grafo": 44664,
+  "filas_otros_programas": 2255,
   "anios": [
     2021,
     2022,
-    2023
+    2023,
+    2024,
+    2026
   ],
   "tipos_incluidos": [
     "UBACYT"
@@ -46,7 +48,8 @@
     "Unidad académica",
     "Página PDF",
     "Fila en página",
-    "Tipo de proyecto"
+    "Tipo de proyecto",
+    "fuente_completa"
   ],
   "clave_duplicados": [
     "Año del listado",
@@ -56,27 +59,28 @@
     "Rol integrante",
     "Título del proyecto",
     "Unidad académica",
-    "Tipo de proyecto"
+    "Tipo de proyecto",
+    "fuente_completa"
   ],
   "tipos_presentes": {
-    "UBACYT": 41164,
-    "PDE": 1818,
+    "UBACYT": 44664,
+    "PDE": 2069,
     "PIUBAS": 186
   },
   "criterio_rol_persona_proyecto": "máximo puntaje observado",
   "identidad_persona": "NFC + mayúsculas + espacios normalizados, conservando tildes y puntuación; alias explícitos",
   "validacion": {
-    "nodos": 16772,
-    "conexiones": 118489,
-    "participaciones": 24418,
-    "proyectos": 2463,
-    "conexiones_cotejadas": 118489,
-    "nodos_aislados": 0
+    "nodos": 16959,
+    "conexiones": 119769,
+    "participaciones": 25595,
+    "proyectos": 3225,
+    "conexiones_cotejadas": 119769,
+    "nodos_aislados": 39
   },
-  "suma_prestigio": 69707.0,
-  "suma_pesos_conexiones": 136589.0,
-  "sha256_nodos": "91286e313dca08a97029f82ccc5d56f7b94bae8376e1cacd0062cfec695cb40b",
-  "sha256_conexiones": "2550afac4d073274761b0002f72607831ad2e2ebfdac1476d68a204e824a008c",
+  "suma_prestigio": 76560.0,
+  "suma_pesos_conexiones": 138406.0,
+  "sha256_nodos": "1931107c2c3e4e23f792b592fc0921c270b26937ba7606de5fa6dbb4d05fb329",
+  "sha256_conexiones": "53c479b9a87888736c093ecf2934ad0088048b56cbee69623c33c4501deac08c",
   "versiones": {
     "python": "3.12.14",
     "pandas": "3.0.1",

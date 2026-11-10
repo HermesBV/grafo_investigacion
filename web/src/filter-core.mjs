@@ -22,7 +22,7 @@ export function prepareData(data) {
     names:data.nodes.map(n=>normalizeSearch(n[1])),
     projects:data.projects.map(p=>{
       const type=p[6]??'UBACYT';
-      const weight=data.meta.projectTypeWeights?.[type]?.conexiones??(data.schemaVersion!==2?data.meta.edgeMultiplier:undefined);
+      const weight=data.meta.projectTypeWeights?.[type]?.conexiones??(![2,3].includes(data.schemaVersion)?data.meta.edgeMultiplier:undefined);
       if(!Number.isFinite(weight)||weight<=0)throw new Error(`Falta el peso de conexiones para ${type}.`);
       return {code:normalizeSearch(p[0]),title:normalizeSearch(p[1].join(' ')),type,weight};
     }),
@@ -37,7 +37,7 @@ function selection(values,numeric=false) {
 export function filterGraph(data, filters={}, index=prepareData(data)) {
   const name=normalizeSearch(filters.name), code=normalizeSearch(filters.code), title=normalizeSearch(filters.title);
   const roles=selection(filters.roles??filters.role,true), units=selection(filters.units??filters.unit,true);
-  const types=selection(filters.types);
+  const types=selection(filters.types), coverages=selection(filters.coverages);
   const neighbors=filters.neighbors !== false;
   const minConnections=minimum(filters.minConnections,index.limits.maxConnections,'Mínimo de conexiones');
   const minProjects=minimum(filters.minProjects,index.limits.maxProjects,'Mínimo de proyectos');
@@ -50,7 +50,11 @@ export function filterGraph(data, filters={}, index=prepareData(data)) {
     if(units&&!p[2].some(u=>units.has(u)))continue;
     if (code && !search.code.includes(code)) continue;
     if (title && !search.title.includes(title)) continue;
-    let members=p[3].filter(m=>eligible[m[0]]&&(!roles||m[1].some(r=>roles.has(r)))).map(m=>m[0]);
+    let members=p[3].filter(m=>{
+      if(!eligible[m[0]])return false;
+      if(m[3])return m[3].some(o=>(!coverages||coverages.has(o[1]))&&(!roles||roles.has(o[2])));
+      return (!coverages||coverages.has('completa'))&&(!roles||m[1].some(r=>roles.has(r)));
+    }).map(m=>m[0]);
     if (name) {
       const selected=members.filter(n=>index.names[n].includes(name));
       if (!selected.length) continue;

@@ -6,6 +6,7 @@ import './style.css';
 
 const $=id=>document.getElementById(id);
 const multi={
+  coverage:new MultiSelect($('coverage-filter'),{id:'coverage',label:'Cobertura de la fuente',allLabel:'Todas las fuentes',plural:'coberturas seleccionadas'}),
   type:new MultiSelect($('project-type-filter'),{id:'project-type',label:'Tipo de proyecto',allLabel:'Todos los tipos',plural:'tipos seleccionados'}),
   unit:new MultiSelect($('unit-filter'),{id:'unit',label:'Unidad académica',allLabel:'Todas las unidades',plural:'unidades seleccionadas'}),
   role:new MultiSelect($('role-filter'),{id:'role',label:'Rol en el proyecto',allLabel:'Todos los roles',plural:'roles seleccionados'}),
@@ -16,20 +17,20 @@ const esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>
 const roleLabels={'DIRECTOR':'Director/a','CODIRECTOR':'Codirector/a','ESTUDIANTE':'Estudiante','ESTUDIANTE DE GRADO':'Estudiante de grado','INVESTIGADOR EN FORMACION':'Investigador/a en formación','INVESTIGADOR TESISTA':'Investigador/a tesista','INVESTIGADOR DE APOYO':'Investigador/a de apoyo','INVESTIGADOR ASESOR':'Investigador/a asesor/a','INVESTIGADOR FORMADO':'Investigador/a formado/a','SIN ROL':'Sin rol informado'};
 let data,renderer,graph,result,selected=null,worker,requestId=0,visiblePeople=30,moreLabels=false;
 let peopleOrder=[],maxPrestige=1;
-const filters=()=>({types:multi.type.values(),units:multi.unit.values(),roles:multi.role.values(),name:$('name').value,code:$('code').value,title:$('title').value,neighbors:$('neighbors').checked,minConnections:$('min-connections').value,minProjects:$('min-projects').value});
+const filters=()=>({coverages:multi.coverage.values(),types:multi.type.values(),units:multi.unit.values(),roles:multi.role.values(),name:$('name').value,code:$('code').value,title:$('title').value,neighbors:$('neighbors').checked,minConnections:$('min-connections').value,minProjects:$('min-projects').value});
 const isMobile=()=>matchMedia('(max-width: 800px)').matches;
 
 function color(prestige) {
   const t=Math.log1p(prestige)/Math.log1p(maxPrestige);
-  const stops=[[53,121,115],[113,162,135],[211,181,102],[183,87,46]];
+  const stops=[[36,108,76],[50,164,103],[50,211,99],[183,255,214]];
   const scaled=Math.min(2.9999,t*3), i=Math.floor(scaled), f=scaled-i;
   return `rgb(${stops[i].map((v,j)=>Math.round(v+(stops[i+1][j]-v)*f)).join(',')})`;
 }
 const size=prestige=>.4+3.4*Math.sqrt(prestige/maxPrestige);
-const edgeColor=weight=>weight>=3?'#b96f49':weight===2?'#5b968b':'#8aafa6';
+const edgeColor=weight=>weight>=3?'#32d363':weight===2?'#75daba':'#52675d';
 function fade(color,opacity=1) {
   let rgb=color.startsWith('#')?[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)):color.match(/\d+/g).map(Number);
-  return `rgb(${rgb.map((v,i)=>Math.round(v*opacity+[244,246,240][i]*(1-opacity))).join(',')})`;
+  return `rgb(${rgb.map((v,i)=>Math.round(v*opacity+[34,34,34][i]*(1-opacity))).join(',')})`;
 }
 
 function setStatus(title,message,kind='loading') {
@@ -42,7 +43,7 @@ function setStatus(title,message,kind='loading') {
 function makeRenderer() {
   const options={stagePadding:55,itemSizesReference:'screen',minEdgeThickness:.3,labelDensity:.35,labelGridCellSize:110,labelRenderedSizeThreshold:8,
     hideEdgesOnMove:false,hideLabelsOnMove:false,minCameraRatio:.003,maxCameraRatio:3,enableEdgeEvents:true,enableCameraRotation:false,
-    labelColor:{color:'#213f3d'},labelSize:11,labelFont:'Arial',zIndex:true,
+    labelColor:{color:'#f3f5f3'},labelSize:11,labelFont:'Arial',zIndex:true,
     nodeReducer:(id,a)=>({...a,color:fade(a.color,a.opacity),forceLabel:a.focused,highlighted:a.focused,zIndex:a.focused?1:0}),
     defaultDrawNodeLabel:(context,node,settings)=>{
       if(!node.label)return;
@@ -207,7 +208,7 @@ async function init() {
     const response=await fetch(`${import.meta.env.BASE_URL}data/graph.json`);
     if(!response.ok)throw new Error(`Datos: HTTP ${response.status}`);
     data=await response.json();
-    if(![1,2].includes(data.schemaVersion)||data.nodes.some(n=>n.length!==10))throw new Error('Formato de datos o layout inválido');
+    if(![1,2,3].includes(data.schemaVersion)||data.nodes.some(n=>n.length!==10))throw new Error('Formato de datos o layout inválido');
     maxPrestige=Math.max(...data.nodes.map(n=>n[2]));
     const limits=getThresholdLimits(data);
     for(const [id,max] of [['min-connections',limits.maxConnections],['min-projects',limits.maxProjects]]) {
@@ -218,10 +219,11 @@ async function init() {
     $('prestige-min').textContent=num(Math.min(...data.nodes.map(n=>n[2])));
     $('prestige-max').textContent=num(maxPrestige);
     $('years').textContent=data.meta.years.join(' · ');
+    multi.coverage.setOptions((data.coverages??['completa']).map(v=>({value:v,label:v==='completa'?'Completa':'Sólo dirección y codirección'})));
     multi.type.setOptions((data.types??['UBACYT']).map(t=>({value:t,label:t==='UBACYT'?'UBACyT':t})));
     multi.unit.setOptions(data.units.map((u,i)=>({value:i,label:u})));
     multi.role.setOptions(data.roles.map((r,i)=>({value:i,label:roleLabels[r]||r})));
-    $('methodology-content').innerHTML=`<p>Una persona es un nodo. Dos personas están conectadas cuando integran un mismo proyecto de investigación. La red reúne los listados ${data.meta.years.join(', ')}: <strong>${num(data.meta.nodes)} personas, ${num(data.meta.edges)} conexiones y ${num(data.meta.projects)} proyectos</strong>.</p><h3>Prestigio → tamaño y color</h3><p>Es la suma de puntos por proyecto distinto. Si una persona tiene varios roles en el mismo proyecto, se toma el mayor puntaje observado. El valor se conserva al filtrar.</p><table><thead><tr><th>Rol</th><th>Puntos</th></tr></thead><tbody>${Object.entries(data.meta.roleScores).map(([r,p])=>`<tr><td>${esc(roleLabels[r]||r)}</td><td>${p}</td></tr>`).join('')}</tbody></table><h3>Peso → grosor y color de la conexión</h3><p>El peso suma las ponderaciones de los proyectos compartidos según su tipo. Actualmente cada proyecto UBACyT suma 1. Los pesos se vuelven a calcular con los proyectos seleccionados. El color distingue peso 1, 2 y 3 o más; el grosor sigue aumentando con el peso.</p><h3>Dos formas de ordenar la red</h3><p><strong>Colaboraciones</strong> detecta comunidades con Louvain y ordena las personas con ForceAtlas2. Los vínculos con mayor peso atraen más. Las posiciones se calculan con la red completa y se mantienen al filtrar; se ajusta el encuadre. <strong>Centralidad de grado</strong> coloca más cerca del centro a quienes tienen más colaboradores distintos en la base completa, con una escala logarítmica de la distancia. Cambiar la distribución no cambia el prestigio.</p><h3>Cómo se combinan los filtros</h3><p>Tipo, unidad, código y título seleccionan proyectos. El rol selecciona integrantes dentro de esos proyectos. Podés marcar varias opciones por desplegable: se incluyen las coincidencias con cualquiera de ellas (OR). Entre campos se deben cumplir todos los filtros (AND). Sin opciones marcadas se incluye todo. Integrante busca sin distinguir tildes o mayúsculas: con “Ver sus colaboradores” muestra sus grupos; al desactivarlo conserva solo las personas cuyo nombre coincide. Todos los campos se combinan. Los listados y los roles se acumulan entre años.</p><p>Los mínimos de conexiones y proyectos se aplican a los totales de cada persona en toda la base y deben cumplirse ambos. Conexiones cuenta colaboradores distintos; proyectos cuenta proyectos distintos. Admiten cualquier entero del rango indicado. Un mínimo de 0 o un campo vacío no restringe.</p><h3>Alcance de los datos</h3><p>Son proyectos vigentes en los listados, no exclusivamente proyectos aprobados en ese año. Un proyecto se cuenta una sola vez aunque figure en varios años. Compartir un proyecto en la red acumulada no garantiza coincidencia temporal. Los nombres conservan sus tildes y puntuación para identificar personas; homónimos y variantes de escritura pueden necesitar revisión. El término “prestigio” designa únicamente el puntaje acordado.</p><h3>Fuentes originales</h3><ul>${data.meta.sources.filter(s=>data.meta.years.includes(s.year)).map(s=>`<li><a href="${esc(s.url)}" target="_blank" rel="noreferrer">Listado ${esc(s.type==='UBACYT'||!s.type?'UBACyT':s.type)} ${s.year} ↗</a></li>`).join('')}</ul><p><a href="https://github.com/bustosthl/grafo_investigacion/blob/main/docs/criterios_grafo_ubacyt.md" target="_blank" rel="noreferrer">Ver los criterios completos y la notebook ↗</a></p>`;
+    $('methodology-content').innerHTML=`<p>Una persona es un nodo. Dos personas están conectadas cuando integran un mismo proyecto de investigación. La red reúne los listados ${data.meta.years.join(', ')}: <strong>${num(data.meta.nodes)} personas, ${num(data.meta.edges)} conexiones y ${num(data.meta.projects)} proyectos</strong>.</p><h3>Prestigio → tamaño y color</h3><p>Es la suma de puntos por proyecto distinto. Si una persona tiene varios roles en el mismo proyecto, se toma el mayor puntaje observado. El valor se conserva al filtrar.</p><table><thead><tr><th>Rol</th><th>Puntos</th></tr></thead><tbody>${Object.entries(data.meta.roleScores).map(([r,p])=>`<tr><td>${esc(roleLabels[r]||r)}</td><td>${p}</td></tr>`).join('')}</tbody></table><h3>Peso → grosor y color de la conexión</h3><p>El peso suma las ponderaciones de los proyectos compartidos según su tipo. Actualmente cada proyecto UBACyT suma 1. Los pesos se vuelven a calcular con los proyectos seleccionados. El color distingue peso 1, 2 y 3 o más; el grosor sigue aumentando con el peso.</p><h3>Dos formas de ordenar la red</h3><p><strong>Colaboraciones</strong> detecta comunidades con Louvain y ordena las personas con ForceAtlas2. Los vínculos con mayor peso atraen más. Las posiciones se calculan con la red completa y se mantienen al filtrar; se ajusta el encuadre. <strong>Centralidad de grado</strong> coloca más cerca del centro a quienes tienen más colaboradores distintos en la base completa, con una escala logarítmica de la distancia. Cambiar la distribución no cambia el prestigio.</p><h3>Cómo se combinan los filtros</h3><p>Tipo, unidad, código y título seleccionan proyectos. El rol selecciona integrantes dentro de esos proyectos. Podés marcar varias opciones por desplegable: se incluyen las coincidencias con cualquiera de ellas (OR). Entre campos se deben cumplir todos los filtros (AND). Sin opciones marcadas se incluye todo. Integrante busca sin distinguir tildes o mayúsculas: con “Ver sus colaboradores” muestra sus grupos; al desactivarlo conserva solo las personas cuyo nombre coincide. Todos los campos se combinan. Los listados y los roles se acumulan entre años.</p><p>Los mínimos de conexiones y proyectos se aplican a los totales de cada persona en toda la base y deben cumplirse ambos. Conexiones cuenta colaboradores distintos; proyectos cuenta proyectos distintos. Admiten cualquier entero del rango indicado. Un mínimo de 0 o un campo vacío no restringe.</p><h3>Cobertura de las fuentes</h3><p>Los PDF de 2021–2023 incluyen integrantes. Los Excel de 2024 y 2026 sólo informan dirección y codirección. El filtro selecciona observaciones de esa cobertura; no completa los equipos con personas de otros años. Un nodo ausente de una fuente parcial no implica que haya dejado el equipo. El prestigio y los mínimos siguen siendo globales.</p><h3>Alcance de los datos</h3><p>Son proyectos vigentes en los listados, no exclusivamente proyectos aprobados en ese año. Un proyecto se cuenta una sola vez aunque figure en varios años. Compartir un proyecto en la red acumulada no garantiza coincidencia temporal. Los nombres conservan sus tildes y puntuación para identificar personas; homónimos y variantes de escritura pueden necesitar revisión. El término “prestigio” designa únicamente el puntaje acordado.</p><h3>Fuentes originales</h3><ul>${data.meta.sources.filter(s=>data.meta.years.includes(s.year)).map(s=>`<li><a href="${esc(s.url)}" target="_blank" rel="noreferrer">Listado ${esc(s.type==='UBACYT'||!s.type?'UBACyT':s.type)} ${s.year} ↗</a></li>`).join('')}</ul><p><a href="https://github.com/bustosthl/grafo_investigacion/blob/main/docs/criterios_grafo_ubacyt.md" target="_blank" rel="noreferrer">Ver los criterios completos y la notebook ↗</a></p>`;
     worker=new Worker(new URL('./filter-worker.mjs',import.meta.url),{type:'module'});
     worker.onerror=e=>{console.error(e);setStatus('No se pudo procesar la red','Volvé a cargar la página para reintentar.','error');};
     worker.onmessage=({data:message})=>{
