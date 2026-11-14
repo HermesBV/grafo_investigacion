@@ -14,7 +14,7 @@ const multi={
 const format=new Intl.NumberFormat('es-AR');
 const num=n=>format.format(n);
 const esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const roleLabels={'DIRECTOR':'Director/a','CODIRECTOR':'Codirector/a','ESTUDIANTE':'Estudiante','ESTUDIANTE DE GRADO':'Estudiante de grado','INVESTIGADOR EN FORMACION':'Investigador/a en formación','INVESTIGADOR TESISTA':'Investigador/a tesista','INVESTIGADOR DE APOYO':'Investigador/a de apoyo','INVESTIGADOR ASESOR':'Investigador/a asesor/a','INVESTIGADOR FORMADO':'Investigador/a formado/a','SIN ROL':'Sin rol informado'};
+const roleLabels={'DIRECTOR':'Director/a','CODIRECTOR':'Codirector/a','ESTUDIANTE':'Estudiante','ESTUDIANTE DE GRADO':'Estudiante de grado','INVESTIGADOR EN FORMACION':'Investigador/a en formación','INVESTIGADOR TESISTA':'Investigador/a tesista','INVESTIGADOR DE APOYO':'Investigador/a de apoyo','INVESTIGADOR ASESOR':'Investigador/a asesor/a','INVESTIGADOR FORMADO':'Investigador/a formado/a','SIN ROL':'Sin rol informado','INVESTIGADOR COLABORADOR':'Investigador/a colaborador/a'};
 let data,renderer,graph,result,selected=null,worker,requestId=0,visiblePeople=30,moreLabels=false;
 let peopleOrder=[],maxPrestige=1;
 const filters=()=>({coverages:multi.coverage.values(),types:multi.type.values(),units:multi.unit.values(),roles:multi.role.values(),name:$('name').value,code:$('code').value,title:$('title').value,neighbors:$('neighbors').checked,minConnections:$('min-connections').value,minProjects:$('min-projects').value});

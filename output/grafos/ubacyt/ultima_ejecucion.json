@@ -1,20 +1,30 @@
 {
-  "fecha_utc": "20261110T134500621299Z",
-  "archivo_base": "C:\\Users\\tomas.bustos\\Documents\\personal\\uba\\grafo_investigacion\\output\\xlsx\\UBACYT-consolidado-2021-2022-2023.xlsx",
+  "fecha_utc": "20261114T022103404135Z",
+  "archivo_base": "output/xlsx/UBACYT-consolidado-v2.2.xlsx",
   "hoja": "Datos",
-  "hash_base_entrada": "b4b92d7143c66549a0c8241eb02e2259026ab2d93b8f271cd21ba8dd53b6ae3b",
-  "hash_base_salida": "b4b92d7143c66549a0c8241eb02e2259026ab2d93b8f271cd21ba8dd53b6ae3b",
+  "hash_base_entrada": "b151f4800446b300563cff9c6706d899ed3215dff95cfdd6b2bd71425fde1fff",
+  "hash_base_salida": "b151f4800446b300563cff9c6706d899ed3215dff95cfdd6b2bd71425fde1fff",
   "respaldo": null,
-  "filas_entrada": 46919,
+  "filas_entrada": 72187,
   "duplicados_eliminados": 0,
-  "filas_base_limpia": 46919,
-  "filas_grafo": 44664,
-  "filas_otros_programas": 2255,
+  "filas_base_limpia": 72187,
+  "filas_grafo": 72187,
+  "filas_otros_programas": 0,
   "anios": [
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2016,
+    2017,
+    2018,
+    2020,
     2021,
     2022,
     2023,
     2024,
+    2025,
     2026
   ],
   "tipos_incluidos": [
@@ -30,7 +40,8 @@
     "INVESTIGADOR FORMADO": 3,
     "CODIRECTOR": 5,
     "DIRECTOR": 6,
-    "SIN ROL": 1
+    "SIN ROL": 1,
+    "INVESTIGADOR COLABORADOR": 2
   },
   "pesos_tipo": {
     "UBACYT": {
@@ -63,26 +74,24 @@
     "fuente_completa"
   ],
   "tipos_presentes": {
-    "UBACYT": 44664,
-    "PDE": 2069,
-    "PIUBAS": 186
+    "UBACYT": 72187
   },
   "criterio_rol_persona_proyecto": "máximo puntaje observado",
   "identidad_persona": "NFC + mayúsculas + espacios normalizados, conservando tildes y puntuación; alias explícitos",
   "validacion": {
-    "nodos": 16959,
-    "conexiones": 119769,
-    "participaciones": 25595,
-    "proyectos": 3225,
-    "conexiones_cotejadas": 119769,
-    "nodos_aislados": 39
+    "nodos": 24596,
+    "conexiones": 185827,
+    "participaciones": 46730,
+    "proyectos": 7258,
+    "conexiones_cotejadas": 185827,
+    "nodos_aislados": 50
   },
-  "suma_prestigio": 76560.0,
-  "suma_pesos_conexiones": 138406.0,
-  "sha256_nodos": "1931107c2c3e4e23f792b592fc0921c270b26937ba7606de5fa6dbb4d05fb329",
-  "sha256_conexiones": "53c479b9a87888736c093ecf2934ad0088048b56cbee69623c33c4501deac08c",
+  "suma_prestigio": 128080.0,
+  "suma_pesos_conexiones": 226499.0,
+  "sha256_nodos": "4fbd6af4973d3ccaec4b44665d3547788a13bb9e43e0c1792c3f55dde7cc6353",
+  "sha256_conexiones": "5b20296ade7fcd44321fdcbdebad387ce5d1de75e4eb6246b6dad399216fdf18",
   "versiones": {
-    "python": "3.12.14",
+    "python": "3.14.4",
     "pandas": "3.0.1",
     "openpyxl": "3.1.5"
   }

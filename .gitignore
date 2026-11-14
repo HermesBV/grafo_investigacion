@@ -29,3 +29,9 @@ links_interes.txt
 # Accesos y configuración exclusivos de esta computadora
 local/
 *.local.cmd
+
+# Ampliación v2 (fork HermesBV): base UBACyT extendida, versionada a propósito
+!output/xlsx/
+output/xlsx/*
+!output/xlsx/UBACYT-consolidado-v2.2.xlsx
+!output/xlsx/ampliacion_v2/

@@ -11,6 +11,13 @@ al peso de la conexión. El prestigio suma los puntajes de los roles por proyect
 distinto; los criterios y las limitaciones están en
 [docs/criterios_grafo_ubacyt.md](docs/criterios_grafo_ubacyt.md).
 
+## Fork HermesBV: base UBACyT ampliada (v2)
+
+`output/xlsx/UBACYT-consolidado-v2.2.xlsx` amplía la base a **2010–2026** (72.187 filas, 7.258 proyectos,
+24.596 personas, 185.827 conexiones), en el mismo formato de 11 columnas, sin pisar los datos existentes. Detalle, criterios
+y limitaciones en [docs/ampliacion_ubacyt_v2.md](docs/ampliacion_ubacyt_v2.md). Fuentes crudas en
+[fuentes-hbv/](fuentes-hbv/README.md).
+
 ## Visor
 
 - Tamaño y color de cada nodo según su prestigio acumulado. Nombre completo como etiqueta.

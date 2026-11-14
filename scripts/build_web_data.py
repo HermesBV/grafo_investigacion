@@ -42,6 +42,7 @@ def canonical_unit(value):
         'MEDICINA':'Medicina',
         'ODONTOLOGIA':'Odontología',
         'PSICOLOGIA':'Psicología',
+        'RECTORADO':'Rectorado',
         '':'Sin unidad informada',
     }
     if text not in names:
